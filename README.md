@@ -16,4 +16,4 @@ To run and test this code locally do:
 
 ## Deploy
 Deploy
- 1. Deploy your project using `firebase deploy --except hosting`
+ 1. Deploy your project using `firebase deploy --only functions:friend`

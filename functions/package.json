@@ -1,6 +1,5 @@
 {
-  "name": "authorized-https-endpoint-functions",
-  "description": "restrict HTTPS functions to Firebase users",
+  "name": "glimpse-function-friend",
   "dependencies": {
     "express": "^4.14.1",
     "firebase-admin": "^4.1.2",

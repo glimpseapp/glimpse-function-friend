@@ -35,18 +35,37 @@ const validateFirebaseIdToken = (req, res, next) => {
 
 app.use(validateFirebaseIdToken);
 
+app.get('/requests', (req, res) => {
+    admin.database().ref(`friend-requests/received/${req.user.uid}`).once('value').then(requests => res.send(requests.val()));
+});
+
 app.post('/request', (req, res) => {
-    var requestId = uuidv4();
-    var data = {
-        sender_id: req.user.uid,
-        receiver_id: req.body.receiverId
+    const senderId = req.user.uid;
+    const receiverId = req.body.receiver_id;
+    const data = {
+        sender_id: senderId,
+        receiver_id: receiverId,
+        ts: Date.now()
     };
-    admin.database().ref(`requests/${requestId}`).set(data, function (error) {
-        if (error)
-            res.send({error: error})
-        else
-            res.send({success: true});
+    admin.database().ref(`friend-requests/sent/${senderId}/${receiverId}`).set(data, function (error) {
+        admin.database().ref(`friend-requests/received/${receiverId}/${senderId}`).set(data, function (error) {
+            if (error)
+                res.send({error: error})
+            else
+                res.send({success: true});
+        });
     });
 });
+
+app.post('/accept', (req, res) => {
+    const senderId = req.body.sender_id;
+    const receiverId = req.user.uid;
+    admin.database().ref(`friend-requests/received/${receiverId}/${senderId}`).once('value').then(friend_request => {
+        admin.database().ref(`friend-requests/received/${receiverId}/${senderId}`).remove()
+        admin.database().ref(`friend-requests/sent/${senderId}/${receiverId}`).remove()
+        res.send({success:true})
+    });
+});
+
 
 exports.friend = functions.https.onRequest(app);
