@@ -34,7 +34,13 @@ const validateFirebaseIdToken = (req, res, next) => {
 app.use(validateFirebaseIdToken);
 
 app.get('/friends', (req, res) => {
-    admin.database().ref(`friends/${req.user.uid}`).once('value').then(requests => res.send(requests.val()));
+    admin.database().ref(`friends/${req.user.uid}`).once('value').then(requests => {
+	    friends = requests.val();
+	    res.send({
+		    "results": friends.length,
+		    "friends": friends
+	    });
+    });
 });
 
 app.get('/requests', (req, res) => {
@@ -42,7 +48,7 @@ app.get('/requests', (req, res) => {
 });
 
 app.post('/request', (req, res) => {
-    const senderId = req.user.uid;
+    const senderId = req.user.uidw;
     const receiverId = req.body.receiver_id;
     const data = {
         sender_id: senderId,
